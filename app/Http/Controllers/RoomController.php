@@ -31,7 +31,7 @@ class RoomController extends Controller
                 'address' => 'required'
             ]);
             if ($validator->fails()) throw new Exception($validator->errors());
-            $room = Hotel::create([
+            $room = Room::create([
                 'hotel_id' => $request->input('hotel_id'),
                 'type_id' => $request->input('type_id'),
                 'address' => $request->input('address')

@@ -22,7 +22,8 @@ return new class extends Migration
             $table->float('tarif_hebdomadaire', 4, 2);
             $table->unsignedSmallInteger('NbrPersons');
             $table->unsignedSmallInteger('room_size');
-            $table->unsignedSmallInteger('discount')->nullable()->default(0);
+            $table->enum('status', ['draft', 'active', 'inactive']);
+            // $table->unsignedSmallInteger('discount')->nullable()->default(0);
             $table->timestamps();
             $table->softDeletes();
         });

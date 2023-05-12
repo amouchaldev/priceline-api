@@ -19,7 +19,8 @@ use Illuminate\Support\Facades\Route;
 
 
 use App\Http\Controllers\AuthController;
-
+use App\Http\Controllers\ClientController;
+use App\Http\Controllers\LocationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,36 +33,24 @@ use App\Http\Controllers\AuthController;
 |
 */
 
-// Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
-//     return $request->user();
-// });
+/*
+|--------------------------------------------------------------------------
+| client routes
+|--------------------------------------------------------------------------
+*/
 
 
 Route::group(['as' => 'location'], function () {
     // get all cities
-    Route::get('/cities', function () {
-        return City::with('region')->all();
-    });
+    Route::get('/cities', [LocationController::class, 'cities']);
     // get top 5 cities
-    Route::get('/cities/top5', function () {
-        return City::with('region')
-            ->whereIn('name', ['Casablanca', 'Agadir', 'Marrakech', 'Tanger', 'Fes'])
-            ->get();
-    });
+    Route::get('/cities/top5', [LocationController::class, 'top5Cities']);
     // get available hotels in specific city 
-    Route::get('/cities/{name}', function ($name) {
-        return City::whereName($name)
-            ->with(['hotels' => function ($query) {
-                $query->whereHas('rooms', function ($query) {
-                    $query->whereDoesntHave('reservation');
-                });
-            }])->first();
-    });
+    Route::get('/cities/{name}', [LocationController::class, 'availableHotelsInCity']);
 });
 
 
-
-// filter by city, available from and available until
+// filter by city, available from, available until and type
 Route::get('search', function (Request $request) {
     try {
         $city = $request->query('city');
@@ -110,38 +99,50 @@ Route::get('search', function (Request $request) {
 });
 
 
-Route::group(['prefix' => 'admin'], function () {
-    Route::get('/hotels', function () {
-        // owner hotels
-        return HotelResource::collection(Hotel::whereId(1)->with('types.rooms', 'city.region')->get());
-    });
-    // hotel types
-    Route::get('/hotels/{id}/types', function ($id) {
-        return TypeResource::collection(Type::where('hotel_id', $id)->with('images')->get());
-    });
+// client reservations
+Route::group(['prefix' => 'reservations', 'middleware' => 'jwt.verify'], function () {
+    // Route::get('/', [ReservationController::class, 'clientReservations']);
+    Route::post('/', [ReservationController::class, 'makeReservation']);
 });
 
-// user reservations
-Route::group(['prefix' => 'user'], function () {
-    Route::get('/reservations', function () {
-        return Reservation::with('room.type')->where('user_id', 1)->paginate(4);
-    });
+Route::group(['prefix' => 'profile', 'middleware' => 'jwt.verify'], function () {
+    Route::get('/', [ClientController::class, 'profile']);
+    Route::put('/', [ClientController::class, 'updateProfile']);
+    Route::post('/cards', [ClientController::class, 'storeCard']);
+    Route::put('/cards', [ClientController::class, 'updateCard']);
 });
 
-Route::apiResources([
-    // 'cities' => CityContoller::class,
-    'hotels' => HotelController::class,
-    'reservations' => ReservationController::class,
-    'rooms' => RoomController::class,
-    'types' => TypeController::class,
-]);
+
+// hotel detail with available types
+Route::get('hotels/{id}', [HotelController::class, 'hotelWithAvailableTypes']);
+
+/*
+|--------------------------------------------------------------------------
+| admin routes
+|--------------------------------------------------------------------------
+*/
+Route::group(['middleware' => 'jwt.verify', 'as' => 'admin', 'prefix' => 'admin'], function () {
+    Route::group(['prefix' => 'hotels'], function() {
+        Route::get('/', [HotelController::class, 'getOwnerHotels']);
+        Route::post('/', [HotelController::class, 'store']);
+        Route::get('/{id}', [HotelController::class, 'hotelDetail']);
+        Route::put('/{id}', [HotelController::class, 'update']);
+        Route::delete('/{id}', [HotelController::class, 'destroy']);
+    });
+    
+    Route::group(['prefix' => 'types'], function() {
+        Route::post('/', [TypeController::class, 'store']);
+        Route::put('/{id}', [TypeController::class, 'update']);
+        Route::delete('/{id}', [TypeController::class, 'destroy']);
+    });
+
+    Route::group(['prefix' => 'rooms'], function() {
+        Route::post('/', [RoomController::class, 'store']);
+        Route::delete('/{id}', [RoomController::class, 'destroy']);
+    });
 
 
-
-
-
-
-
+});
 
 
 

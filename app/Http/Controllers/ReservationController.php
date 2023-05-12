@@ -11,18 +11,16 @@ use Illuminate\Support\Facades\Auth;
 
 class ReservationController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
 
+    public function clientReservations() {
+        return Reservation::with('room.type')
+                            ->where('user_id', auth()->user()->id)
+                            ->paginate(4);
+    }
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function makeReservation(Request $request)
     {
         try {
             // request should contains available from, available until, room type, hotel id
@@ -94,29 +92,5 @@ class ReservationController extends Controller
         catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()]);
         }
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
     }
 }

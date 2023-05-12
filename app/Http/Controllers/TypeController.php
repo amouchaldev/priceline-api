@@ -13,14 +13,6 @@ use Illuminate\Support\Facades\Validator;
 class TypeController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        return TypeResource::collection(Type::with('images')->get());
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
@@ -49,14 +41,6 @@ class TypeController extends Controller
         catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 422);
         }
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
     }
 
     /**

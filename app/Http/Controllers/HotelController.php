@@ -10,32 +10,31 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Tymon\JWTAuth\Facades\JWTAuth;
+
 
 class HotelController extends Controller
 {
-    /**
-     * get all hotels.
-     */
-    public function index()
-    {
-        return HotelResource::collection(Hotel::with('rooms', 'city.region')->get());
-    }
 
+    public function getOwnerHotels() {
+        $hotels = Hotel::where('user_id', auth()->user()->id)->get();
+        return HotelResource::collection($hotels);
+    }
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
+        
         try {
             $validator = Validator::make($request->all(), [
                 'name' => 'required',
                 'city_id' => 'required', 
                 'address' => 'required',
-                'user_id' => 'required'
             ]);
             if ($validator->fails()) throw new Exception($validator->errors());
-            $hotel = Hotel::create($request->all());
-            // Auth::user()->hotels()->save($hotel);
+            $hotel = Hotel::make($request->all());
+            $hotel->user()->associate(auth()->user())->save();
             return response()->json($hotel, 201);
         }
         catch (\Exception $e) {
@@ -46,7 +45,7 @@ class HotelController extends Controller
     /**
      * get hotel with types that's have available rooms.
      */
-    public function show(string $id)
+    public function hotelWithAvailableTypes(string $id)
     {
         try {
             $hotel = new HotelResource(Hotel::findOrFail($id));
@@ -56,6 +55,23 @@ class HotelController extends Controller
                 ->whereDoesntHave('reservation');
             })->get());
             return response()->json(compact('hotel', 'types'));
+        }
+        catch (\Illuminate\Database\Eloquent\ModelNotFoundException) {
+            return response()->json(['error' => "hotel with id $id not found"], 404);
+        }
+        catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 404);
+        }
+    }
+
+    /**
+     * get hotel with types that's have available rooms.
+     */
+    public function hotelDetail(string $id)
+    {
+        try {
+            $hotel = new HotelResource(Hotel::with('city.region')->findOrFail($id));
+            return response()->json(compact('hotel'));
         }
         catch (\Illuminate\Database\Eloquent\ModelNotFoundException) {
             return response()->json(['error' => "hotel with id $id not found"], 404);
@@ -88,9 +104,10 @@ class HotelController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Hotel $hotel)
+    public function destroy($id)
     {
      try {
+        $hotel = Hotel::findOrFail($id);
         $hotel->delete();
         return response()->json(['message' => 'deleted successfully']);
      }   
