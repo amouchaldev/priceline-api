@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Exceptions\JWTException;
@@ -71,7 +72,7 @@ class AuthController extends Controller
         try {
             // this authenticates the user details with the database and generates a token
             if (! $token = JWTAuth::attempt($input)) {
-                return $this->sendError([], "invalid login credentials", 400);
+                return $this->sendError([], "invalid login credentials", 403);
             }
         } catch (JWTException $e) {
             return $this->sendError([], $e->getMessage(), 500);
@@ -88,12 +89,18 @@ class AuthController extends Controller
         try {
             $user = JWTAuth::parseToken()->authenticate();
             if (!$user) {
-                return $this->sendError([], "user not found", 403);
+                return $this->sendError([], "user not found", 404);
             } 
         } catch (JWTException $e) {
             return $this->sendError([], $e->getMessage(), 500);
         }
 
         return $this->sendResponse($user, "user data retrieved", 200);
+    }
+
+
+    public function logout() {
+        JWTAuth::parseToken()->invalidate();
+        return response()->json(['message' => 'User logged out successfully']);
     }
 }

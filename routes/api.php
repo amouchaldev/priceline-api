@@ -32,9 +32,9 @@ use App\Http\Controllers\AuthController;
 |
 */
 
-Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
-    return $request->user();
-});
+// Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
+//     return $request->user();
+// });
 
 
 Route::group(['as' => 'location'], function () {
@@ -147,13 +147,8 @@ Route::apiResources([
 
 /*
 |--------------------------------------------------------------------------
-| API Routes
+| Auth API Routes
 |--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| is assigned the "api" middleware group. Enjoy building your API!
-|
 */
 
 Route::get('/', function() {
@@ -163,17 +158,16 @@ Route::get('/', function() {
     return response()->json($data, 200);
 });
 
+
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
-Route::get('/user', [AuthController::class, 'getUser']);
-
-
 Route::middleware('jwt.verify')->group(function() {
+    Route::get('/user', [AuthController::class, 'getUser']);
+    Route::delete('/logout', [AuthController::class, 'logout']);
+    
     Route::get('/test', function () {
         return response()->json(['test' => 'test test']);
     });
-    
-    Route::get('/dashboard', function() {
-        return response()->json(['message' => 'Welcome to dashboard'], 200);
-    });
+
 });
+
