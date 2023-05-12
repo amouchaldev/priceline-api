@@ -14,7 +14,9 @@ return new class extends Migration
         Schema::create('reservations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained();
-            $table->foreignId('offer_id')->constrained('offers');
+            $table->foreignId('room_id')->constrained();
+            $table->datetime('from');
+            $table->datetime('until');
             $table->timestamps();
             $table->softDeletes();
         });
