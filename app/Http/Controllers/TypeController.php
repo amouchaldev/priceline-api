@@ -17,7 +17,7 @@ class TypeController extends Controller
      */
     public function index()
     {
-        // return TypeResource::collection(Type::with('images')->get());
+        return TypeResource::collection(Type::with('images')->get());
     }
 
     /**

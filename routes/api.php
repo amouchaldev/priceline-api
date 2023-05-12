@@ -113,7 +113,7 @@ Route::get('search', function (Request $request) {
 Route::group(['prefix' => 'admin'], function () {
     Route::get('/hotels', function () {
         // owner hotels
-        return HotelResource::collection(Hotel::whereId(Auth::user()->id)->with('types.rooms', 'city.region')->get());
+        return HotelResource::collection(Hotel::whereId(1)->with('types.rooms', 'city.region')->get());
     });
     // hotel types
     Route::get('/hotels/{id}/types', function ($id) {
@@ -124,7 +124,7 @@ Route::group(['prefix' => 'admin'], function () {
 // user reservations
 Route::group(['prefix' => 'user'], function () {
     Route::get('/reservations', function () {
-        return Reservation::where('user_id', Auth::user()->id)->paginate(4);
+        return Reservation::with('room.type')->where('user_id', 1)->paginate(4);
     });
 });
 

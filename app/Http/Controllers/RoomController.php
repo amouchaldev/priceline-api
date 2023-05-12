@@ -16,7 +16,7 @@ class RoomController extends Controller
      */
     public function index()
     {
-        // return RoomResource::collection(Room::with('hotel.city')->get());
+        return RoomResource::collection(Room::with('hotel.city')->get());
     }
 
     /**
