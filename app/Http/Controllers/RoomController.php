@@ -56,7 +56,19 @@ class RoomController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        try {
+            $validator = Validator::make($request->all(), [
+                'hotel_id' => 'required',
+                'type_id' => 'required', 
+                'address' => 'required'
+            ]);
+            if ($validator->fails()) throw new Exception($validator->errors());
+            $room = Room::whereId($id)->update($request->all());
+            return response()->json($room, 201);
+        }
+        catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 422);
+        }
     }
 
     /**

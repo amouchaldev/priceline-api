@@ -45,6 +45,10 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasOne(Card::class);
     }
 
+    public function reviews() {
+        return $this->morphMany(Review::class, 'reviewable');
+    }
+
     public function getJWTIdentifier()
     {
         return $this->getKey();

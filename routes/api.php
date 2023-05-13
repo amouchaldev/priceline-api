@@ -1,26 +1,19 @@
 <?php
 
-use App\Http\Controllers\CityContoller;
 use App\Http\Controllers\HotelController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\TypeController;
-use App\Http\Resources\HotelResource;
-use App\Http\Resources\TypeResource;
 use App\Models\City;
-use App\Models\Hotel;
-use App\Models\Reservation;
-use App\Models\Room;
-use App\Models\Type;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\LocationController;
+use App\Http\Controllers\ReviewController;
 
 /*
 |--------------------------------------------------------------------------
@@ -69,6 +62,8 @@ Route::get('search', function (Request $request) {
                     ->WhereHas('rooms', function ($query) {
                         $query->whereDoesntHave('reservation');
                     });
+            }, 'hotels' => function ($q) {
+                $q->withAvg('reviews', 'rate');
             }])->get();
         foreach ($availableHotels->pluck('hotels')[0] as $hotel) {
             $results->push($hotel);
@@ -86,6 +81,8 @@ Route::get('search', function (Request $request) {
                                 ->orWhere('from', '>', $availableUntil);
                         });
                     });
+            }, 'hotels' => function ($q) {
+                $q->withAvg('reviews', 'rate');
             }])->get();
         foreach ($availableReservedHotels->pluck('hotels')[0] as $hotel) {
             if ($results->contains($hotel)) continue;
@@ -108,10 +105,18 @@ Route::group(['prefix' => 'reservations', 'middleware' => 'jwt.verify'], functio
 Route::group(['prefix' => 'profile', 'middleware' => 'jwt.verify'], function () {
     Route::get('/', [ClientController::class, 'profile']);
     Route::put('/', [ClientController::class, 'updateProfile']);
+    Route::get('/cards', [ClientController::class, 'clientCard']);
     Route::post('/cards', [ClientController::class, 'storeCard']);
     Route::put('/cards', [ClientController::class, 'updateCard']);
 });
 
+Route::group(['prefix' => 'reviews', 'middleware' => 'jwt.verify'], function() {
+    Route::post('/', [ReviewController::class, 'store']);
+    // Route::get('/{hotel}/active', [TypeController::class, 'activeTypes']);
+    // Route::post('/', [TypeController::class, 'store']);
+    // Route::put('/{id}', [TypeController::class, 'update']);
+    // Route::delete('/{id}', [TypeController::class, 'destroy']);
+});
 
 // hotel detail with available types
 Route::get('hotels/{id}', [HotelController::class, 'hotelWithAvailableTypes']);
@@ -131,6 +136,8 @@ Route::group(['middleware' => 'jwt.verify', 'as' => 'admin', 'prefix' => 'admin'
     });
     
     Route::group(['prefix' => 'types'], function() {
+        Route::get('/{hotel}', [TypeController::class, 'allTypes']);
+        Route::get('/{hotel}/active', [TypeController::class, 'activeTypes']);
         Route::post('/', [TypeController::class, 'store']);
         Route::put('/{id}', [TypeController::class, 'update']);
         Route::delete('/{id}', [TypeController::class, 'destroy']);
@@ -138,6 +145,7 @@ Route::group(['middleware' => 'jwt.verify', 'as' => 'admin', 'prefix' => 'admin'
 
     Route::group(['prefix' => 'rooms'], function() {
         Route::post('/', [RoomController::class, 'store']);
+        Route::put('/{id}', [RoomController::class, 'update']);
         Route::delete('/{id}', [RoomController::class, 'destroy']);
     });
 

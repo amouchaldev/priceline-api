@@ -5,19 +5,22 @@ namespace App\Http\Controllers;
 use App\Http\Resources\HotelResource;
 use App\Http\Resources\TypeResource;
 use App\Models\Hotel;
+use App\Models\Image;
 use App\Models\Type;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-use Tymon\JWTAuth\Facades\JWTAuth;
 
 
 class HotelController extends Controller
 {
 
     public function getOwnerHotels() {
-        $hotels = Hotel::where('user_id', auth()->user()->id)->get();
+        $hotels = Hotel::with('reviews')
+                        ->withAvg('reviews', 'rate')
+                        ->where('user_id', auth()->user()->id)
+                        ->get();
         return HotelResource::collection($hotels);
     }
     /**
@@ -25,17 +28,40 @@ class HotelController extends Controller
      */
     public function store(Request $request)
     {
-        
         try {
-            $validator = Validator::make($request->all(), [
-                'name' => 'required',
-                'city_id' => 'required', 
-                'address' => 'required',
-            ]);
-            if ($validator->fails()) throw new Exception($validator->errors());
-            $hotel = Hotel::make($request->all());
-            $hotel->user()->associate(auth()->user())->save();
-            return response()->json($hotel, 201);
+            $step = $request['step'];
+            if ($step == 1) {
+                $validator1 = Validator::make($request->all(), [
+                    'name' => 'required',
+                    'description' => 'required', 
+                    'stars' => 'required|int',
+                ]);
+                if ($validator1->fails()) throw new Exception($validator1->errors());
+            }
+            else if ($step == 2) {
+                $validator2 = Validator::make($request->all(), [
+                    'rue' => 'required',
+                    'pays' => 'required', 
+                    'city_id' => 'required',
+                ]);
+                if ($validator2->fails()) throw new Exception($validator2->errors());
+            }
+            else if ($step == 3) {
+                $validator3 = Validator::make($request->all(), [
+                    'images' => 'required',
+                ]);
+                if ($validator3->fails()) throw new Exception($validator3->errors());
+                if (count($request['images']) < 3) throw new Exception('upload at least 3 images');
+            }
+            else {
+                $hotel = Hotel::make($request->all());
+                $hotel->user()->associate(auth()->user())->save();
+                foreach($request['images'] as $img) {
+                    $image = Image::make(['path' => Storage::putFile('hotels', $img)]);
+                    $hotel->images()->save($image);
+                }
+                return response()->json($hotel, 201);
+            }
         }
         catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 422);
@@ -48,7 +74,9 @@ class HotelController extends Controller
     public function hotelWithAvailableTypes(string $id)
     {
         try {
-            $hotel = new HotelResource(Hotel::findOrFail($id));
+            $hotel = Hotel::with(['reviews', 'city'])
+                                            ->withAvg('reviews', 'rate')
+                                            ->whereId($id)->first();
             // get hotel rooms types that have available rooms
             $types = TypeResource::collection(Type::whereHas('rooms', function ($query) use ($id){
                 $query->where('hotel_id', $id)
@@ -89,8 +117,11 @@ class HotelController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'name' => 'required',
-                'city_id' => 'required', 
-                'address' => 'required'
+                'description' => 'required', 
+                'stars' => 'required|int',
+                'rue' => 'required',
+                'pays' => 'required', 
+                'city_id' => 'required',
             ]);
             if ($validator->fails()) throw new Exception($validator->errors());
             $hotel = Hotel::whereId($id)->update($request->all());

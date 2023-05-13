@@ -35,6 +35,8 @@ class ReservationController extends Controller
             // from, until the date range that the user wants to reserve
             $from = Carbon::parse($request->input('from'))->toDateString();
             $until = Carbon::parse($request->input('until'))->toDateString();
+            // throw error if started date passed or started date bigger than end date
+            if ($until < $from || Carbon::parse($from) < now()) throw new Exception('invalid date');
             $quantity = $request->input('quantity') ?? 1;
             $typeId = $request->input('type_id');
             $hotelId = $request->input('hotel_id');

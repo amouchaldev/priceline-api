@@ -12,29 +12,42 @@ use Illuminate\Support\Facades\Validator;
 
 class TypeController extends Controller
 {
+    public function allTypes($hotel) {
+        return Type::where('hotel_id', $hotel)->get();
+    }
+    public function activeTypes($hotel) {
+        return Type::where('hotel_id', $hotel)->whereStatus('active')->get();
+    }
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
         try {
+            if ($request['status'] === 'active') {
+                $validator = Validator::make($request->all(), [
+                    'hotel_id' => 'required',
+                    'name' => 'required',
+                    'number_bed' => 'required', 
+                    'price' => 'required',
+                    'NbrPersons' => 'required',
+                    'tarif_hebdomadaire' => 'required',
+                    'tarif_mensuel' => 'required',
+                    'room_size' => 'required',
+                ]);
+            }
             $validator = Validator::make($request->all(), [
                 'hotel_id' => 'required',
-                'name' => 'required',
-                'number_bed' => 'required', 
-                'price' => 'required',
-                'NbrPersons' => 'required',
-                'tarif_hebdomadaire' => 'required',
-                'tarif_mensuel' => 'required',
-                'room_size' => 'required',
             ]);
             if ($validator->fails()) throw new Exception($validator->errors());
             $type = Type::create($request->all());
-            foreach($request->file('images') as $img) {
-                $image = Image::make([
-                    'path' => Storage::putFile('types', $img)
-                ]);
-                $type->images()->save($image);
+            if ($request->hasFile('images')) {
+                foreach($request->file('images') as $img) {
+                    $image = Image::make([
+                        'path' => Storage::putFile('types', $img)
+                    ]);
+                    $type->images()->save($image);
+                }
             }
             return response()->json($type, 201);
         }
@@ -49,14 +62,22 @@ class TypeController extends Controller
     public function update(Request $request, string $id)
     {
         try {
+            if ($request['status'] === 'active') {
+                $validator = Validator::make($request->all(), [
+                    'hotel_id' => 'required',
+                    'name' => 'required',
+                    'number_bed' => 'required', 
+                    'price' => 'required',
+                    'NbrPersons' => 'required',
+                    'tarif_hebdomadaire' => 'required',
+                    'tarif_mensuel' => 'required',
+                    'room_size' => 'required',
+                    'status' => 'required'
+                ]);
+                if ($validator->fails()) throw new Exception($validator->errors());
+            }
             $validator = Validator::make($request->all(), [
-                'name' => 'required',
-                'number_bed' => 'required', 
-                'price' => 'required',
-                'NbrPersons' => 'required',
-                'tarif_hebdomadaire' => 'required',
-                'tarif_mensuel' => 'required',
-                'room_size' => 'required',
+                'hotel_id' => 'required',
             ]);
             if ($validator->fails()) throw new Exception($validator->errors());
             $type = Type::whereId($id)->update($request->all());

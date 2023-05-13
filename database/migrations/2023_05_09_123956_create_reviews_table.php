@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained();
             $table->morphs('reviewable');
-            $table->unsignedInteger('rate');
+            $table->unsignedSmallInteger('rate');
+            $table->text('comment')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

@@ -34,6 +34,12 @@ class ClientController extends Controller
         if($user) return response()->json(['message' => 'updated successfully']);
     }
 
+
+    public function clientCard() {
+        $card = Card::where('user_id', auth()->user()->id)->first();
+        return $card;
+    }
+
     public function storeCard(Request $request) {
         $request->validate([
             'card_number' => 'required',
