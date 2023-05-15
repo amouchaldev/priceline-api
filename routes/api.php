@@ -133,7 +133,7 @@ Route::get('hotels/{id}', [HotelController::class, 'hotelWithAvailableTypes']);
 | admin routes
 |--------------------------------------------------------------------------
 */
-Route::group(['middleware' => 'jwt.verify', 'as' => 'admin', 'prefix' => 'admin'], function () {
+Route::group(['middleware' => ['jwt.verify', 'isAdmin'], 'as' => 'admin', 'prefix' => 'admin'], function () {
     
     Route::group(['prefix' => 'hotels'], function() {
         Route::get('/', [HotelController::class, 'getOwnerHotels']);
@@ -178,6 +178,9 @@ Route::get('/', function() {
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+
+
+
 Route::middleware('jwt.verify')->group(function() {
     Route::get('/user', [AuthController::class, 'getUser']);
     Route::delete('/logout', [AuthController::class, 'logout']);

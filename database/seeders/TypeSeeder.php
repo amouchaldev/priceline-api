@@ -19,7 +19,8 @@ class TypeSeeder extends Seeder
         $hotels = Hotel::all();
         foreach($hotels as $hotel) {
                 // Type::factory()->count(6)->create(['hotel_id' => $hotel->id]);
-                Type::factory()->count(6)->for($hotel)->has(Image::factory()->count(6))->create();
+                Type::factory()->count($count)->for($hotel)->has(Image::factory()->count(6))->create();
         }
+        $this->command->info('types added successfully');
     }
 }

@@ -409,5 +409,6 @@ class CitySeeder extends Seeder
             ['id' => 403, 'name' => 'Stehat', 'region_id' => 1],
             ['id' => 404, 'name' => 'Aït Attab', 'region_id' => 5]
         ]);
+        $this->command->info('cities added successfully');
     }
 }

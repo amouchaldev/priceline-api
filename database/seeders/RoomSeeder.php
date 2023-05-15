@@ -23,5 +23,6 @@ class RoomSeeder extends Seeder
             ->for($types->random())
             ->for($hotel)->create();
         }
+        $this->command->info('rooms added successfully');
     }
 }

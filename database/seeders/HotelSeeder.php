@@ -16,5 +16,6 @@ class HotelSeeder extends Seeder
     {
         $count = $this->command->ask('How Many Hotel To Add ?', 10);
         Hotel::factory()->count($count)->has(Image::factory()->count(5))->create();
+        $this->command->info('hotels added successfully');
     }
 }

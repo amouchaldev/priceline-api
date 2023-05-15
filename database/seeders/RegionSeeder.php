@@ -27,5 +27,6 @@ class RegionSeeder extends Seeder
             ['id' => 11, 'name' => 'Laâyoune-Sakia El Hamra'],
             ['id' => 12, 'name' => 'Dakhla-Oued Ed Dahab'],
         ]);
+        $this->command->info('regions added successfully');
     }
 }

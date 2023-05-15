@@ -17,6 +17,7 @@ class UserSeeder extends Seeder
         if (in_array($type, ['client', 'admin'])) {
             $count = $this->command->ask("How many $type you want to add ?", 7);
             User::factory()->count($count)->create(['type' => $type]);
+            $this->command->info('users added successfully');
         }
         else $this->command->error('invalid type');
     }

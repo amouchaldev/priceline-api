@@ -34,6 +34,7 @@ class ReviewSeeder extends Seeder
                         ]);
                     }
                 }
+            $this->command->info('hotels reviews added successfully');
             }
         } 
         else $this->command->error('invalid model');

@@ -35,7 +35,7 @@ class AuthController extends Controller
     public function register(Request $request) 
     {
         $input = $request->only('name', 'email', 'password', 'c_password');
-
+        if ($request['type'] === 'admin') $input['type'] = 'admin';
         $validator = Validator::make($input, [
             'name' => 'required',
             'email' => 'required|email|unique:users',
@@ -48,13 +48,14 @@ class AuthController extends Controller
         }
 
         $input['password'] = bcrypt($input['password']); // use bcrypt to hash the passwords
-        $user = User::create($input); // eloquent creation of data
+        $user = User::create($input); 
 
         $success['user'] = $user;
 
         return $this->sendResponse($success, 'user registered successfully', 201);
 
     }
+
 
     public function login(Request $request)
     {
