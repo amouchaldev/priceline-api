@@ -141,6 +141,12 @@ Route::group(['middleware' => ['jwt.verify', 'isAdmin'], 'as' => 'admin', 'prefi
         Route::get('/{id}', [HotelController::class, 'hotelDetail']);
         Route::put('/{id}', [HotelController::class, 'update']);
         Route::delete('/{id}', [HotelController::class, 'destroy']);
+
+        // idmoulay
+        Route::post('/confirmInfos', [HotelController::class, 'confirmInfos']);
+        Route::post('/confirmEmplacement', [HotelController::class, 'confirmEmplacement']);
+        Route::post('/confirmPhotos', [HotelController::class, 'confirmPhotos']);
+        Route::post('/createHotel', [HotelController::class, 'createHotel']);
     });
     
     Route::group(['prefix' => 'types'], function() {

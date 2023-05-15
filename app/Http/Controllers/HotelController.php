@@ -12,6 +12,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
+use App\Http\Requests\ConfirmEmplacementRequest;
+use App\Http\Requests\ConfirmInfosRequest;
+use App\Http\Requests\ConfirmPhotosRequest;
 
 class HotelController extends Controller
 {
@@ -145,5 +148,53 @@ class HotelController extends Controller
      catch (\Exception $e) {
         return response()->json(['error' => $e->getMessage()]);
      }
+    }
+
+
+    public function confirmInfos(ConfirmInfosRequest $request)
+    {
+        return [
+            'success' => true,
+        ];
+    }
+
+    public function confirmEmplacement(ConfirmEmplacementRequest $request)
+    {
+        return [
+            'success' => true,
+        ];
+    }
+
+    public function confirmPhotos(ConfirmPhotosRequest $request)
+    {
+        return response()->json([
+            'success' => true,
+        ]);
+    }
+
+    public function createHotel(Request $request)
+    {
+        $data = [
+            'hotelName' => $request->hotelName,
+            'hotelDesc' => $request->hotelDesc,
+            'hotelStars' => $request->hotelStars,
+            'hotelStreet' => $request->hotelStreet,
+            'hotelNumber' => $request->hotelNumber,
+            'hotelProvince' => $request->hotelProvince,
+            'hotelCity' => $request->hotelCity,
+            'hotelCodePostal' => $request->hotelCodePostal,
+        ];
+
+        $photos = $request->file('hotelPhotos');
+
+        foreach ($photos as $photo) {
+            $path = $photo->store('public/images/hotelPhotos');
+            // You can also store the file path in your database or perform any other necessary operations
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $data
+        ]);
     }
 }
