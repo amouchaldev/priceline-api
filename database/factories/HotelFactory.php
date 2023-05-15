@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\City;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,12 +18,18 @@ class HotelFactory extends Factory
      */
     public function definition(): array
     {
-        $cities = City::all();
+        $cities = City::whereIn('id', [4, 30, 103, 177, 327, 345, 397, 58])->get();
+        $admins = User::whereType('admin')->get();
         return [
-            'name' => fake()->sentence(4),
+            'name' => fake()->company(),
             'description' => fake()->paragraph(3),
             'address' => fake()->address(),
-            'city_id' => $cities->random()->id
+            'city_id' => $cities->random()->id,
+            'user_id' => $admins->random()->id,
+            'rue' => fake()->streetAddress(),
+            'pays' => 'morocco',
+            'stars' => rand(3, 5),
+            'code_zip' => fake()->postcode(),
         ];
     }
 }

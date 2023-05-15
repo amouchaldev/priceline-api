@@ -46,12 +46,15 @@ Route::group(['as' => 'location'], function () {
 // filter by city, available from, available until and type
 Route::get('search', function (Request $request) {
     try {
+        // return now();
         $city = $request->query('city');
         $availableFrom = Carbon::parse($request->query('from'))->toDateTimeString();
         $availableUntil = Carbon::parse($request->query('until'))->toDateTimeString();
         $type = $request->query('type');
+        // return $type;
         $results = collect();
-
+        // throw error if started date passed or started date bigger than end date
+        if ($availableUntil < $availableFrom || Carbon::parse($availableFrom) < now()) throw new Exception('invalid date');
         // get hotels that has available rooms
         $availableHotels =  City::whereName($city)
             ->with(['hotels' => function ($query) use ($type) {
@@ -62,8 +65,10 @@ Route::get('search', function (Request $request) {
                     ->WhereHas('rooms', function ($query) {
                         $query->whereDoesntHave('reservation');
                     });
-            }, 'hotels' => function ($q) {
-                $q->withAvg('reviews', 'rate');
+            }, 'hotels' => function ($q) use($type){
+                $q->whereHas('rooms.type', function ($query) use ($type) {
+                    $query->whereId($type);
+                })->withAvg('reviews', 'rate');
             }])->get();
         foreach ($availableHotels->pluck('hotels')[0] as $hotel) {
             $results->push($hotel);
@@ -75,14 +80,16 @@ Route::get('search', function (Request $request) {
                 $query->whereHas('rooms.type', function ($query) use ($type) {
                     $query->whereId($type);
                 })
-                    ->WhereHas('rooms', function ($query) use ($availableFrom, $availableUntil) {
-                        $query->whereHas('reservation', function ($query) use ($availableFrom, $availableUntil) {
+                ->WhereHas('rooms', function ($query) use ($availableFrom, $availableUntil, $type) {
+                        $query->whereHas('reservation', function ($query) use ($availableFrom, $availableUntil, $type) {
                             $query->where('until', '<', $availableFrom)
                                 ->orWhere('from', '>', $availableUntil);
-                        });
                     });
-            }, 'hotels' => function ($q) {
-                $q->withAvg('reviews', 'rate');
+                    });
+            }, 'hotels' => function ($q) use($type){
+                $q->whereHas('rooms.type', function ($query) use ($type) {
+                    $query->whereId($type);
+                })->withAvg('reviews', 'rate');
             }])->get();
         foreach ($availableReservedHotels->pluck('hotels')[0] as $hotel) {
             if ($results->contains($hotel)) continue;
@@ -127,6 +134,7 @@ Route::get('hotels/{id}', [HotelController::class, 'hotelWithAvailableTypes']);
 |--------------------------------------------------------------------------
 */
 Route::group(['middleware' => 'jwt.verify', 'as' => 'admin', 'prefix' => 'admin'], function () {
+    
     Route::group(['prefix' => 'hotels'], function() {
         Route::get('/', [HotelController::class, 'getOwnerHotels']);
         Route::post('/', [HotelController::class, 'store']);

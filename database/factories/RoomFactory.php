@@ -19,10 +19,10 @@ class RoomFactory extends Factory
     {
         $hotels = Hotel::all();
         return [
-            'hotel_id' => $hotels->random()->id,
+            // 'hotel_id' => $hotels->random()->id,
             'address' => fake()->address(),
             'description' => fake()->paragraph(4),
-            'bed' => random_int(1, 4)
+            // 'bed' => random_int(1, 4)
         ];
     }
 }

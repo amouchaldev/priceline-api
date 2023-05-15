@@ -12,7 +12,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        \App\Models\User::factory(10)->create();
+        // \App\Models\User::factory(10)->create();
         // \App\Models\Hotel::factory(10)->create();
         // \App\Models\Room::factory(40)->create();
 
@@ -20,6 +20,14 @@ class DatabaseSeeder extends Seeder
         //     'name' => 'Test User',
         //     'email' => 'test@example.com',
         // ]);
-            // $this->call([ImageRoomSeeder::class]);
+            $this->call([
+                RegionSeeder::class,
+                CitySeeder::class,
+                UserSeeder::class,
+                HotelSeeder::class,
+                TypeSeeder::class,
+                RoomSeeder::class,
+                ReviewSeeder::class
+            ]);
     }
 }
