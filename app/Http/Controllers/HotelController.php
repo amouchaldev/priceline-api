@@ -175,23 +175,24 @@ class HotelController extends Controller
     public function createHotel(Request $request)
     {
         $data = [
-            'hotelName' => $request->hotelName,
-            'hotelDesc' => $request->hotelDesc,
-            'hotelStars' => $request->hotelStars,
-            'hotelStreet' => $request->hotelStreet,
-            'hotelNumber' => $request->hotelNumber,
-            'hotelProvince' => $request->hotelProvince,
-            'hotelCity' => $request->hotelCity,
-            'hotelCodePostal' => $request->hotelCodePostal,
+            'name' => $request->hotelName,
+            'description' => $request->hotelDesc,
+            'stars' => $request->hotelStars,
+            'rue' => $request->hotelStreet,
+            'address' => $request->hotelNumber,
+            // 'hotelProvince' => $request->hotelProvince,
+            'city_id' => $request->hotelCity,
+            'code_zip' => $request->hotelCodePostal,
         ];
-
+        $hotel = Hotel::make($data);
+        $hotel->user()->associate(auth()->user())->save();
         $photos = $request->file('hotelPhotos');
-
         foreach ($photos as $photo) {
-            $path = $photo->store('public/images/hotelPhotos');
+            $path = Storage::putFile('hotels', $photo);
+            $image = Image::make(['path' => $path]);
+            $image->imageable()->associate($hotel)->save();
             // You can also store the file path in your database or perform any other necessary operations
         }
-
         return response()->json([
             'success' => true,
             'data' => $data

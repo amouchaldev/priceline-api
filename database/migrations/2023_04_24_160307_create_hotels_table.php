@@ -19,7 +19,7 @@ return new class extends Migration
             $table->foreignId('city_id')->constrained('cities');
             $table->string('rue');
             $table->string('address')->nullable();
-            $table->string('pays');
+            $table->string('pays')->nullable()->default('maroc');
             $table->string('code_zip')->nullable();
             $table->unsignedInteger('stars', false);
             $table->timestamps();
