@@ -2,7 +2,10 @@
 
 namespace App\Http\Requests\Auth;
 
+use Exception;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class LoginRequest extends FormRequest
 {
@@ -26,10 +29,20 @@ class LoginRequest extends FormRequest
             'email' => 'required|email',
         ];
     }
+
     public function messages() {
         return [
             'email.required' => 'Le champ email est obligatoire',
             'email.email' => 'Le champ email doit être une adresse email valide',
         ];
+    }
+
+    public function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(response()->json([
+            'success' => false,
+            'message' => 'Validation errors',
+            'data' => $validator->errors()
+        ]));
     }
 }

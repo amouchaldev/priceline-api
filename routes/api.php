@@ -34,6 +34,11 @@ use App\Http\Controllers\ReviewController;
 
 
 Route::group(['as' => 'location'], function () {
+    // all provinces
+    Route::get('/provinces', [LocationController::class, 'provinces']);
+    // province cities
+    Route::get('/provinces/{id}', [LocationController::class, 'provinceCities']);
+
     // get all cities
     Route::get('/cities', [LocationController::class, 'cities']);
     // get top 5 cities

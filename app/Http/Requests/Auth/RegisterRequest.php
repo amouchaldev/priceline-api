@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Auth;
 
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class RegisterRequest extends FormRequest
 {
@@ -22,7 +24,7 @@ class RegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => 'required',
+            'firstName' => 'required',
             'lastName' => 'required',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:8',
@@ -41,5 +43,14 @@ class RegisterRequest extends FormRequest
             'password.min' => 'Le champ du mot de passe doit contenir au moins 8 caractères',
             'c_password.same' => 'Le champ mot de passe c doit correspondre au mot de passe',
         ];
+    }
+
+    public function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(response()->json([
+            'success' => false,
+            'message' => 'Validation errors',
+            'data' => $validator->errors()
+        ]));
     }
 }
