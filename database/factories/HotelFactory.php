@@ -27,7 +27,7 @@ class HotelFactory extends Factory
             'city_id' => $cities->random()->id,
             'user_id' => $admins->random()->id,
             'rue' => fake()->streetAddress(),
-            'pays' => 'morocco',
+            'pays' => 'maroc',
             'stars' => rand(3, 5),
             'code_zip' => fake()->postcode(),
         ];

@@ -4,7 +4,7 @@ namespace App\Http\Requests\Auth;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class LoginRequest extends FormRequest
+class RegisterRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,13 +23,23 @@ class LoginRequest extends FormRequest
     {
         return [
             'email' => 'required',
-            'email' => 'required|email',
+            'lastName' => 'required',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|min:8',
+            'c_password' => 'required|same:password',
         ];
     }
+
     public function messages() {
         return [
+            'email.unique' => 'cet e-mail a déjà utilisé',
             'email.required' => 'Le champ email est obligatoire',
             'email.email' => 'Le champ email doit être une adresse email valide',
+            'firstName.required' => 'Le champ prénom est obligatoire',
+            'lastName' => 'Le champ nom est obligatoire',
+            'password.required' => 'Le champ mot de passe est obligatoire',
+            'password.min' => 'Le champ du mot de passe doit contenir au moins 8 caractères',
+            'c_password.same' => 'Le champ mot de passe c doit correspondre au mot de passe',
         ];
     }
 }

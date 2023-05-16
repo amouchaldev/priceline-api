@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Requests\Auth\LoginRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Exceptions\JWTException;
@@ -32,20 +33,21 @@ class AuthController extends Controller
         return response()->json($response, $status);
     }
 
-    public function register(Request $request) 
+    public function register(RegisterRequest $request) 
     {
-        $input = $request->only('name', 'email', 'password', 'c_password');
+        $input = $request->only('firstName', 'lastName', 'email', 'password', 'c_password');
         if ($request['type'] === 'admin') $input['type'] = 'admin';
-        $validator = Validator::make($input, [
-            'name' => 'required',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|min:8',
-            'c_password' => 'required|same:password',
-        ]);
+        // $validator = Validator::make($input, [
+        //     'firstName' => 'required',
+        //     'lastName' => 'required',
+        //     'email' => 'required|email|unique:users',
+        //     'password' => 'required|min:8',
+        //     'c_password' => 'required|same:password',
+        // ]);
 
-        if($validator->fails()){
-            return $this->sendError($validator->errors(), 'Validation Error', 422);
-        }
+        // if($validator->fails()){
+        //     return $this->sendError($validator->errors(), 'Validation Error', 422);
+        // }
 
         $input['password'] = bcrypt($input['password']); // use bcrypt to hash the passwords
         $user = User::create($input); 
@@ -57,18 +59,18 @@ class AuthController extends Controller
     }
 
 
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
         $input = $request->only('email', 'password');
 
-        $validator = Validator::make($input, [
-            'email' => 'required',
-            'password' => 'required',
-        ]);
+        // $validator = Validator::make($input, [
+        //     'email' => 'required',
+        //     'password' => 'required',
+        // ]);
 
-        if($validator->fails()){
-            return $this->sendError($validator->errors(), 'Validation Error', 422);
-        }
+        // if($validator->fails()){
+        //     return $this->sendError($validator->errors(), 'Validation Error', 422);
+        // }
 
         try {
             // this authenticates the user details with the database and generates a token
