@@ -7,6 +7,7 @@ use App\Models\Reservation;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator as FacadesValidator;
 
 class ClientController extends Controller
 {
@@ -37,16 +38,18 @@ class ClientController extends Controller
 
     public function clientCard() {
         $card = Card::where('user_id', auth()->user()->id)->first();
+        if(!$card) return response()->json(['message' => 'no card']);
         return $card;
     }
 
     public function storeCard(Request $request) {
-        $request->validate([
-            'card_number' => 'required',
-            'card_type' => 'required',
+        $validator = FacadesValidator::make($request->all(), [
+            'card_number' => 'required|integer',
+            'card_type' => 'required|in:visa,mastercard,cmi',
             'exp_date' => 'required',
-            'cvv' => 'required',
-        ]);
+            'cvv' => 'required|integer',
+            ]);
+        if ($validator->fails()) return response()->json(['message' => 'déjà une carte']);
         $card = Card::make($request->all());
         $card->user()->associate(auth()->user())->save();
         return response()->json(['message' => 'created successfully']);

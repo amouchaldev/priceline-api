@@ -29,7 +29,7 @@ class ReservationController extends Controller
                 'until' => 'required',
                 'type_id' => 'required',
                 'hotel_id' => 'required',
-                'user_id' => 'required'
+                // 'user_id' => 'required'
                 // 'quantity' => 'required'
             ]);
             // from, until the date range that the user wants to reserve
@@ -53,12 +53,12 @@ class ReservationController extends Controller
             // so we should search in reserved rooms to find available rooms in user range date (from, until)
             if ($difference === 0) {
                 foreach ($availableRooms as $room) {
-                    Reservation::create([
-                        'user_id' => $request->input('user_id'),
+                    $reserve = Reservation::make([
                         'room_id' => $room->id,
                         'from' => $from,
                         'until' => $until
                     ]);
+                    $reserve->user()->associate(auth()->user())->save();
                 }
             } 
             else {
@@ -82,12 +82,13 @@ class ReservationController extends Controller
             }
             // create a reservations records if there is available rooms
             foreach ($availableRooms as $room) {
-                Reservation::create([
-                    'user_id' => $request->input('user_id'),
+                $reserve = Reservation::make([
                     'room_id' => $room->id,
                     'from' => $from,
                     'until' => $until
                 ]);
+                $reserve->user()->associate(auth()->user())->save();
+
             }
             return response()->json(['message' => 'reserved successfully'], 201);
         }
