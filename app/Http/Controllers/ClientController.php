@@ -49,19 +49,20 @@ class ClientController extends Controller
             'exp_date' => 'required',
             'cvv' => 'required|integer',
             ]);
-        if ($validator->fails()) return response()->json(['message' => 'déjà une carte']);
+        if ($validator->fails()) return response()->json($validator->errors());
         $card = Card::make($request->all());
         $card->user()->associate(auth()->user())->save();
         return response()->json(['message' => 'created successfully']);
     }
 
     public function updateCard(Request $request) {
-        $request->validate([
-            'card_number' => 'required',
-            'card_type' => 'required',
+        $validator = FacadesValidator::make($request->all(), [
+            'card_number' => 'required|integer',
+            'card_type' => 'required|in:visa,mastercard,cmi',
             'exp_date' => 'required',
-            'cvv' => 'required',
-        ]);
+            'cvv' => 'required|integer',
+            ]);
+        if ($validator->fails()) return response()->json($validator->errors());
         $card = Card::where('user_id', auth()->user()->id)->update($request->all());
         return response()->json(['message' => 'updated successfully']);
 

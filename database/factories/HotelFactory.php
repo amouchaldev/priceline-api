@@ -18,7 +18,7 @@ class HotelFactory extends Factory
      */
     public function definition(): array
     {
-        $cities = City::whereIn('id', [4, 30, 103, 177, 327, 345, 397, 58])->get();
+        $cities = City::whereIn('id', [252, 267, 345, 397])->get(); // rabat, agadir, tanger, laayoune
         $admins = User::whereType('admin')->get();
         return [
             'name' => fake()->company(),

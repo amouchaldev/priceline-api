@@ -10,6 +10,7 @@ class Type extends Model
 {
     use HasFactory, SoftDeletes;
     protected $fillable = ['name', 'hotel_id', 'description', 'number_bed', 'price', 'discount','NbrPersons', 'room_size', 'tarif_hebdomadaire', 'tarif_mensuel'];
+    protected $hidden = ['updated_at', 'deleted_at'];
 
     public function hotel() {
         return $this->belongsTo(Hotel::class);

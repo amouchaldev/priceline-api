@@ -55,7 +55,7 @@ Route::get('search', SearchController::class);
 
 // client reservations
 Route::group(['prefix' => 'reservations', 'middleware' => 'jwt.verify'], function () {
-    // Route::get('/', [ReservationController::class, 'clientReservations']);
+    Route::get('/', [ReservationController::class, 'clientReservations']);
     Route::post('/', [ReservationController::class, 'makeReservation']);
 });
 

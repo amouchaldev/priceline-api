@@ -10,7 +10,7 @@ class Hotel extends Model
 {
     use HasFactory, SoftDeletes;
     protected $fillable = ['name', 'address', 'description', 'city_id', 'rue', 'pays', 'stars', 'user_id'];
-    // protected $hidden = ['created_at', 'updated_at', 'deleted_at'];
+    protected $hidden = ['created_at', 'updated_at', 'deleted_at'];
     public function city() {
         return $this->belongsTo(City::class);
     }

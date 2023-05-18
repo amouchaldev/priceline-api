@@ -10,6 +10,7 @@ class Reservation extends Model
 {
     use HasFactory, SoftDeletes;
     protected $fillable = ['user_id', 'room_id', 'from', 'until'];
+    protected $hidden = ['updated_at', 'deleted_at'];
     public function user() {
         return $this->belongsTo(User::class);
     }
