@@ -12,8 +12,8 @@ use Illuminate\Support\Facades\Validator;
 
 class TypeController extends Controller
 {
-    public function allTypes($hotel) {
-        return Type::withCount('rooms as NbrRooms')->where('hotel_id', $hotel)->get();
+    public function allTypes() {
+        return Type::get();
     }
     public function activeTypes($hotel) {
         return Type::where('hotel_id', $hotel)->whereStatus('active')->get();

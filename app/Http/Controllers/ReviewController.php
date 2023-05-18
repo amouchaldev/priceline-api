@@ -23,6 +23,7 @@ class ReviewController extends Controller
         // return $review;
         if($review) {
             $review->rate = $request['rate'];
+            $review->comment = $request['comment'];
             $review->update();
             return response()->json($review);
         }

@@ -86,6 +86,7 @@ Route::get('hotels/{id}', [HotelController::class, 'hotelWithAvailableTypes']);
 Route::group(['middleware' => ['jwt.verify', 'isAdmin'], 'as' => 'admin', 'prefix' => 'admin'], function () {
     
     Route::group(['prefix' => 'hotels'], function() {
+        Route::get('/{hotel}/types', [HotelController::class, 'types']);
         Route::get('/', [HotelController::class, 'getOwnerHotels']);
         Route::post('/', [HotelController::class, 'store']);
         Route::get('/{id}', [HotelController::class, 'hotelDetail']);
@@ -100,7 +101,7 @@ Route::group(['middleware' => ['jwt.verify', 'isAdmin'], 'as' => 'admin', 'prefi
     });
     
     Route::group(['prefix' => 'types'], function() {
-        Route::get('/{hotel}', [TypeController::class, 'allTypes']);
+        Route::get('/', [TypeController::class, 'allTypes']);
         Route::get('/{hotel}/active', [TypeController::class, 'activeTypes']);
         Route::post('/', [TypeController::class, 'store']);
         Route::put('/{id}', [TypeController::class, 'update']);

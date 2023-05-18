@@ -30,7 +30,8 @@ class ClientController extends Controller
     }
 
     public function updateProfile(Request $request) {
-        $fields = $request->only(['name', 'email', 'password']);
+        $fields = $request->only(['firstName', 'lastName', 'email', 'password']);
+        $fields['password'] = bcrypt($request->input('password'));
         $user = User::whereId(auth()->user()->id)->update($fields);
         if($user) return response()->json(['message' => 'updated successfully']);
     }

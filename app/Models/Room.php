@@ -11,6 +11,7 @@ class Room extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = ['hotel_id', 'type_id', 'address', 'description', 'bed'];
+    protected $hidden = ['updated_at', 'deleted_at'];
     
     public function hotel() {
         return $this->belongsTo(Hotel::class);

@@ -15,9 +15,15 @@ use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\ConfirmEmplacementRequest;
 use App\Http\Requests\ConfirmInfosRequest;
 use App\Http\Requests\ConfirmPhotosRequest;
+use Illuminate\Support\Facades\Gate;
 
 class HotelController extends Controller
 {
+
+    public function types($hotelId) {
+        if (!Gate::allows('view', Hotel::find($hotelId))) return response()->json(['message' => 'unauthorized'], 401);
+        return Type::where('hotel_id', $hotelId)->withCount('rooms as NbrRooms')->get();
+    }
 
     public function getOwnerHotels() {
         $hotels = Hotel::with('reviews')
@@ -140,6 +146,7 @@ class HotelController extends Controller
      */
     public function destroy($id)
     {
+    if (!Gate::allows('view', Hotel::find($id))) return response()->json(['message' => 'unauthorized'], 401);
      try {
         $hotel = Hotel::findOrFail($id);
         $hotel->delete();

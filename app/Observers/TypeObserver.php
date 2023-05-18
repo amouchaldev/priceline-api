@@ -27,8 +27,8 @@ class TypeObserver
      */
     public function deleted(Type $type): void
     {
-        $type->images()->delete();
         $type->rooms()->delete();
+        $type->images()->delete();
     }
 
     /**
